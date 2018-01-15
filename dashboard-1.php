@@ -82,7 +82,7 @@ require('controller/connect_env.php');
               <ul class="nav-menu list-unstyled d-flex flex-md-row align-items-md-center">
               
                 <!-- Logout    -->
-		<li class="nav-item"><a href="dashboard-1.php" class="nav-link logout">Temperature Log<i class="fa fa-sign-out"></i></a></li>
+		<li class="nav-item"><a href="dashboard-1.php" class="nav-link logout"><strong>Temperature Log</strong><i class="fa fa-sign-out"></i></a></li>
 		<li class="nav-item"><a href="dashboard-2.php" class="nav-link logout">Detected Images<i class="fa fa-sign-out"></i></a></li>
 		<li class="nav-item"><a href="logout.php" class="nav-link logout">Logout<i class="fa fa-sign-out"></i></a></li>
               </ul>
@@ -125,14 +125,6 @@ require('controller/connect_env.php');
                         </div>
                       </div>
                     </div>
-                  <div class="card-header d-flex align-items-center">
-                        <h3 class="h4">Camera Viewing</h3>
-                  </div>
-                      <div class="card-body">
-                      <p>Camera Viewing Goes Here</p>
-                      </div>
-              </div><!-- end for the camera viewing card -- >
-
               <!-- Basic Form-->
                 <div class="col-lg-12">
                   <div class="card">
@@ -143,57 +135,49 @@ require('controller/connect_env.php');
                       </div>
                     </div>
                     <div class="card-header d-flex align-items-center">
-                      <h3 class="h4">Sensor Threshold</h3>
+                      <h3 class="h4">Temp and Humidity Logging</h3>
                     </div>
                     <div class="card-body">
-		      <b> Current Temperature Threshold: </b> 
-			<?php 
-				$qstring = "SELECT thres_temp FROM tbl_threshold ORDER BY thres_id DESC LIMIT 1;";
+	<?php
+
+		//phpinfo();
+		ini_set('display_errors', 'on');
+
+		$servername = "localhost";
+		$username = "root";
+		$password = "firemonitor";
+		$db = "firemonitor";
 	
-				$result = $conn_env->query($qstring);
-				if ($result->num_rows > 0) {
-				    while($row = $result->fetch_assoc()) {
-					echo $row['thres_temp'] . "&deg;C";
-				    }
-				} else {
-					echo $conn_env->error;
-				    echo "Nothing set yet. Please set the threshold below.";
-				}
-				$conn->close();
-			 ?>
-			<br /><hr />
-			<b> Current Humidity Threshold: </b>
-			<?php
-			$qstring = "SELECT thres_humidity FROM tbl_threshold ORDER BY thres_id DESC LIMIT 1;";
+		// Create connection
+		$conn = new mysqli($servername, $username, $password,$db);
 	
-				$result = $conn_env->query($qstring);
-				if ($result->num_rows > 0) {
-				    while($row = $result->fetch_assoc()) {
-					echo $row['thres_humidity'] . "%";
-				    }
-				} else {
-					echo $conn_env->error;
-				    echo "Nothing set yet. Please set the threshold below.";
-				}
-				$conn_env->close();
+		// Check connection
+		if ($conn->connect_error) {
+		    die("Connection failed: " . $conn->connect_error);
+		} 
+	
+		$qstring = "SELECT * FROM tbl_env_data;";
+	
+		$result = $conn->query($qstring);
+		// output data of each row
+		    echo "<table id= \"tableData\" border = 1>";
+		    echo "<thead><tr>";
+			echo "<th> Temperature </th> <th> Humidity </th>  <th> Timestamp </th> ";
+		    echo "</tr> </thead>";
+		if ($result->num_rows > 0) {
+		    
+		    while($row = $result->fetch_assoc()) {
+			echo "<tr>";
+			echo "<td>" . $row["temp"]. "</td>" . "<td>" . $row["humidity"]. "</td>" . "<td>" . $row["timestamp"]. "</td>";
+			echo "</tr>";
+		    }
+		    echo "</table>";
+		} else {
+		    echo "0 results";
+		}
+		$conn->close();
 
-			?>
-			<hr />
-                      <form method="POST" action="data/save_thres.php">
-                        <div class="form-group">
-                          <label class="form-control-label"> <strong> Humidity </strong> </label>
-                          <input type="text" placeholder="Enter Humidity Value (Range: 1-100, Relative Humidity %)" class="form-control" name="humidity_set">
-                        </div>
-                        <div class="form-group">       
-                          <label class="form-control-label"><strong> Temperature <strong /></label>
-                          <input type="text" placeholder="Enter Temperature Value (Range: 1-100, Celsius)" class="form-control" name="temp_set">
-                        </div>
-                        <div class="form-group">       
-                          <input type="submit" value="Update" class="btn btn-primary">
-                        </div>
-                      </form>
-
-
+	?>
                     </div>
                   </div>
                 </div>

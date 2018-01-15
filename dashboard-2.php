@@ -83,7 +83,7 @@ require('controller/connect_env.php');
               
                 <!-- Logout    -->
 		<li class="nav-item"><a href="dashboard-1.php" class="nav-link logout">Temperature Log<i class="fa fa-sign-out"></i></a></li>
-		<li class="nav-item"><a href="dashboard-2.php" class="nav-link logout">Detected Images<i class="fa fa-sign-out"></i></a></li>
+		<li class="nav-item"><a href="dashboard-2.php" class="nav-link logout"><strong>Detected Images</strong><i class="fa fa-sign-out"></i></a></li>
 		<li class="nav-item"><a href="logout.php" class="nav-link logout">Logout<i class="fa fa-sign-out"></i></a></li>
               </ul>
             </div>
@@ -125,13 +125,6 @@ require('controller/connect_env.php');
                         </div>
                       </div>
                     </div>
-                  <div class="card-header d-flex align-items-center">
-                        <h3 class="h4">Camera Viewing</h3>
-                  </div>
-                      <div class="card-body">
-                      <p>Camera Viewing Goes Here</p>
-                      </div>
-              </div><!-- end for the camera viewing card -- >
 
               <!-- Basic Form-->
                 <div class="col-lg-12">
@@ -143,57 +136,30 @@ require('controller/connect_env.php');
                       </div>
                     </div>
                     <div class="card-header d-flex align-items-center">
-                      <h3 class="h4">Sensor Threshold</h3>
+                      <h3 class="h4">Detected Images</h3>
                     </div>
                     <div class="card-body">
-		      <b> Current Temperature Threshold: </b> 
-			<?php 
-				$qstring = "SELECT thres_temp FROM tbl_threshold ORDER BY thres_id DESC LIMIT 1;";
-	
-				$result = $conn_env->query($qstring);
-				if ($result->num_rows > 0) {
-				    while($row = $result->fetch_assoc()) {
-					echo $row['thres_temp'] . "&deg;C";
-				    }
-				} else {
-					echo $conn_env->error;
-				    echo "Nothing set yet. Please set the threshold below.";
-				}
-				$conn->close();
-			 ?>
-			<br /><hr />
-			<b> Current Humidity Threshold: </b>
+	<center>
+		<table id= "tableImages" border = 1>
 			<?php
-			$qstring = "SELECT thres_humidity FROM tbl_threshold ORDER BY thres_id DESC LIMIT 1;";
-	
-				$result = $conn_env->query($qstring);
-				if ($result->num_rows > 0) {
-				    while($row = $result->fetch_assoc()) {
-					echo $row['thres_humidity'] . "%";
-				    }
-				} else {
-					echo $conn_env->error;
-				    echo "Nothing set yet. Please set the threshold below.";
+				$adata = array();
+
+				foreach(glob("fire_monitor/".'*.jpg') as $filename){
+				    $adata[] = basename($filename);
 				}
-				$conn_env->close();
 
+				$chunkadata = array_chunk($adata,5);
+
+				foreach($chunkadata as $chunks){
+					echo "<tr>";
+					foreach($chunks as $piece){
+						echo "<td> <img src='fire_monitor/" . $piece. "' height=\"160\" width=\"160\"> <br /> <a href='fire_monitor/" . $piece . "'>" . $piece . " </a></td>";
+					}
+					echo "</tr>";
+
+				}
 			?>
-			<hr />
-                      <form method="POST" action="data/save_thres.php">
-                        <div class="form-group">
-                          <label class="form-control-label"> <strong> Humidity </strong> </label>
-                          <input type="text" placeholder="Enter Humidity Value (Range: 1-100, Relative Humidity %)" class="form-control" name="humidity_set">
-                        </div>
-                        <div class="form-group">       
-                          <label class="form-control-label"><strong> Temperature <strong /></label>
-                          <input type="text" placeholder="Enter Temperature Value (Range: 1-100, Celsius)" class="form-control" name="temp_set">
-                        </div>
-                        <div class="form-group">       
-                          <input type="submit" value="Update" class="btn btn-primary">
-                        </div>
-                      </form>
-
-
+		</table> </center>
                     </div>
                   </div>
                 </div>
